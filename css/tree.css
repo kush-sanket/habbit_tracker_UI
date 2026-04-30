@@ -1,0 +1,79 @@
+/* tree.css — Realistic SVG tree: trunk, branches, shaped leaves, ground */
+
+/* ── Trunk grow animation ───────────────────────────────────────────────── */
+@keyframes trunkGrow {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+.trunk-body {
+  transform-origin: center bottom;
+  transform-box: fill-box;
+  animation: trunkGrow .7s cubic-bezier(.22,1,.36,1) both;
+}
+
+/* ── Branch reveal animation ────────────────────────────────────────────── */
+@keyframes branchReveal {
+  from { opacity: 0; transform: scale(0.6); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.branch-node {
+  transform-box: fill-box;
+  transform-origin: center left;
+  animation: branchReveal .45s ease-out both;
+  transition: opacity .18s;
+}
+.branch-node:hover { opacity: .85; }
+.branch-node:hover > path:first-child {
+  filter: drop-shadow(0 0 5px rgba(255,255,255,.18));
+}
+
+/* ── Leaf appear animation ──────────────────────────────────────────────── */
+/* NOTE: .leaf-node is the INNER animation <g> — the outer positioning <g>
+   uses only the SVG transform attribute. This separation prevents the CSS
+   `transform` property from overriding SVG attribute transforms (which would
+   snap all leaves to the SVG origin and make them invisible). */
+@keyframes leafAppear {
+  from { opacity: 0; transform: scale(0); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.leaf-node {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: leafAppear .32s ease-out both;
+  pointer-events: none; /* clicks handled by outer posG */
+}
+.leaf-node:hover {
+  filter: drop-shadow(0 0 4px rgba(255,255,255,.55));
+}
+
+/* ── Pending bud: pulse while waiting ──────────────────────────────────── */
+@keyframes budPulse {
+  0%, 100% { opacity: 1;    transform: scale(1);    }
+  50%       { opacity: .6;  transform: scale(0.82); }
+}
+.leaf-pending {
+  animation: leafAppear .32s ease-out both,
+             budPulse 2.2s ease-in-out .4s infinite;
+}
+
+/* ── Completed leaf: gentle sway from the stem base ────────────────────── */
+@keyframes leafSway {
+  0%, 100% { transform: rotate(-3.5deg); }
+  50%       { transform: rotate(3.5deg);  }
+}
+.leaf-completed {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: leafAppear .32s ease-out both,
+             leafSway 3.6s ease-in-out .4s infinite;
+}
+.leaf-pending {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+}
+
+/* ── Missed leaf: faded and still ──────────────────────────────────────── */
+.leaf-missed {
+  opacity: .55;
+}

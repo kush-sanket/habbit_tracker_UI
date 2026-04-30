@@ -1,0 +1,203 @@
+/* main.css — Global styles, auth page, cards, badges */
+
+/* ── Variables ─────────────────────────────────────────────────────────── */
+:root {
+  --color-bg-dark : #0d1117;
+  --color-bg-card : #161b22;
+  --color-border  : #30363d;
+  --color-green   : #28a745;
+  --color-yellow  : #ffc107;
+  --color-red     : #dc3545;
+  --color-muted   : #6c757d;
+}
+
+/* ── Base ──────────────────────────────────────────────────────────────── */
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ── Auth page ─────────────────────────────────────────────────────────── */
+body.auth-page {
+  background: linear-gradient(135deg, #0d1117 0%, #1a2332 100%);
+  min-height: 100vh;
+}
+
+.auth-logo {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.auth-card {
+  background: var(--color-bg-card) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 16px !important;
+  color: #e6edf3;
+}
+
+.auth-card .form-control,
+.auth-card .form-select {
+  background: #0d1117;
+  border: 1px solid var(--color-border);
+  color: #e6edf3;
+}
+
+.auth-card .form-control:focus,
+.auth-card .form-select:focus {
+  background: #0d1117;
+  border-color: var(--color-green);
+  color: #e6edf3;
+  box-shadow: 0 0 0 0.2rem rgba(40,167,69,.25);
+}
+
+.auth-card .form-label { color: #8b949e; font-size: .85rem; }
+
+.auth-card h3 { color: #e6edf3; }
+
+/* ── Dashboard page ────────────────────────────────────────────────────── */
+body.dashboard-page {
+  background: var(--color-bg-dark);
+  color: #e6edf3;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Navbar ────────────────────────────────────────────────────────────── */
+.navbar {
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+/* ── Dashboard layout ──────────────────────────────────────────────────── */
+.dashboard-layout {
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Tree panel ────────────────────────────────────────────────────────── */
+.tree-panel {
+  overflow: hidden;
+  position: relative;
+  background: radial-gradient(ellipse at bottom, #1a2332 0%, #0d1117 80%);
+}
+
+#tree-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: default;
+}
+
+.tree-loading {
+  position: absolute;
+  inset: 0;
+  background: rgba(13,17,23,.8);
+  z-index: 10;
+}
+
+.tree-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Detail panel (right drawer) ───────────────────────────────────────── */
+.detail-panel {
+  width: 360px;
+  background: var(--color-bg-card);
+  border-left: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideIn .2s ease;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+.panel-header { background: #0d1117; }
+.panel-body   { flex: 1; }
+
+/* ── FAB ───────────────────────────────────────────────────────────────── */
+.fab-btn {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  width: 52px;
+  height: 52px;
+  font-size: 1.5rem;
+  z-index: 1000;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Modals ────────────────────────────────────────────────────────────── */
+.modal-content {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  color: #e6edf3;
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.modal-footer {
+  border-top: 1px solid var(--color-border);
+}
+
+.modal-content .form-control,
+.modal-content .form-select {
+  background: #0d1117;
+  border: 1px solid var(--color-border);
+  color: #e6edf3;
+}
+
+.modal-content .form-control:focus,
+.modal-content .form-select:focus {
+  background: #0d1117;
+  border-color: var(--color-green);
+  color: #e6edf3;
+  box-shadow: 0 0 0 .2rem rgba(40,167,69,.25);
+}
+
+.modal-content .form-label { color: #8b949e; font-size: .85rem; }
+
+/* ── List group (task list) ────────────────────────────────────────────── */
+.list-group-item {
+  background: transparent;
+  border-color: var(--color-border);
+  color: #e6edf3;
+}
+
+.list-group-item:hover {
+  background: rgba(255,255,255,.04);
+  color: #e6edf3;
+}
+
+/* ── Progress bar ──────────────────────────────────────────────────────── */
+.progress { background: #30363d; }
+
+/* ── Responsive: collapse detail panel on small screens ────────────────── */
+@media (max-width: 640px) {
+  .detail-panel {
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: 60vh;
+    border-top: 1px solid var(--color-border);
+    border-left: none;
+    z-index: 200;
+  }
+}
