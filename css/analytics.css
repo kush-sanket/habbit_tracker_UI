@@ -1,0 +1,446 @@
+/* analytics.css — Goal Fulfillment Stats page */
+
+/* ── Page layout ─────────────────────────────────────────────────────────── */
+.analytics-page {
+  background: var(--bg-gradient);
+  min-height: 100vh;
+}
+
+.analytics-body {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: calc(var(--navbar-height, 56px) + 1rem) !important;
+}
+
+/* ── Stat cards (top row) ────────────────────────────────────────────────── */
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 1.1rem 1rem;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow);
+  transition: transform .2s, box-shadow .2s;
+}
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+}
+.streak-card {
+  border-color: #ff6b35;
+  background: rgba(255, 107, 53, 0.08);
+}
+.stat-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+  margin-bottom: .35rem;
+}
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+.stat-label {
+  font-size: .75rem;
+  color: var(--text-muted);
+  margin-top: .2rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+/* ── Generic analytics card ──────────────────────────────────────────────── */
+.analytics-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 1.25rem 1.4rem;
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow);
+}
+.card-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+.card-title-text {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+.card-subtitle {
+  font-size: .78rem;
+  color: var(--text-muted);
+}
+
+/* ── Today's donut ───────────────────────────────────────────────────────── */
+.today-donut-wrap {
+  width: 90px;
+  flex-shrink: 0;
+}
+.today-donut {
+  width: 90px;
+  height: 90px;
+}
+.donut-bg {
+  fill: none;
+  stroke: var(--progress-bg);
+  stroke-width: 10;
+}
+.donut-fill {
+  fill: none;
+  stroke: #2d8a4e;
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dasharray .7s ease;
+}
+.donut-text {
+  fill: var(--text-primary);
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  text-anchor: middle;
+}
+.today-stat-row {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+.today-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.today-dot-done    { background: #2d8a4e; }
+.today-dot-pending { background: #ffa726; }
+.today-dot-total   { background: var(--text-muted); }
+
+/* ── Daily limits ────────────────────────────────────────────────────────── */
+.branch-progress {
+  height: 8px;
+  background: var(--progress-bg);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.branch-progress-bar {
+  height: 100%;
+  border-radius: 99px;
+  transition: width .6s ease;
+}
+
+/* ── 30-day Calendar Grid ────────────────────────────────────────────────── */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+  gap: 5px;
+}
+.cal-cell {
+  aspect-ratio: 1;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  transition: transform .15s;
+}
+.cal-cell:hover { transform: scale(1.25); z-index: 2; }
+.cal-cell .cal-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-card-solid);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: .35rem .65rem;
+  font-size: .72rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  box-shadow: var(--shadow);
+  z-index: 100;
+  pointer-events: none;
+}
+.cal-cell:hover .cal-tooltip { display: block; }
+.legend-dot {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-radius: 3px;
+}
+
+/* ── Branch health list ──────────────────────────────────────────────────── */
+.branch-health-list {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+.branch-health-item {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .7rem .9rem;
+  background: var(--bg-card-solid);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  transition: box-shadow .2s;
+}
+.branch-health-item:hover { box-shadow: var(--shadow-hover); }
+.bh-icon {
+  font-size: 1.4rem;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.bh-info { flex: 1; min-width: 0; }
+.bh-name {
+  font-weight: 600;
+  font-size: .9rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bh-meta {
+  font-size: .75rem;
+  color: var(--text-muted);
+  margin-top: .1rem;
+}
+.bh-progress-wrap { width: 160px; flex-shrink: 0; }
+.bh-progress-label {
+  font-size: .72rem;
+  color: var(--text-muted);
+  text-align: right;
+  margin-bottom: 2px;
+}
+.bh-streak {
+  text-align: right;
+  min-width: 50px;
+  flex-shrink: 0;
+}
+.bh-streak-val {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+.bh-streak-lbl {
+  font-size: .7rem;
+  color: var(--text-muted);
+}
+
+/* ── Login calendar ──────────────────────────────────────────────────────── */
+.login-streak-pill {
+  display: inline-block;
+  padding: .2rem .7rem;
+  border-radius: 99px;
+  font-size: .78rem;
+  font-weight: 600;
+}
+.logged-in-pill {
+  background: rgba(0, 151, 167, 0.15);
+  color: #00bcd4;
+  border: 1px solid rgba(0, 151, 167, 0.35);
+}
+.best-pill {
+  background: rgba(255, 193, 7, 0.12);
+  color: #ffc107;
+  border: 1px solid rgba(255, 193, 7, 0.25);
+}
+.lc-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: .75rem;
+  color: var(--text-muted);
+}
+
+/* Header row with controls */
+.lc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .75rem;
+}
+.lc-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.lc-nav-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s;
+}
+.lc-nav-btn:hover { background: var(--accent-green-bg); }
+.lc-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 8px;
+  padding: .25rem .5rem;
+  font-size: .82rem;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+}
+.lc-select:focus { border-color: var(--accent-green); }
+
+/* Day-of-week header */
+.login-cal-dow-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 4px;
+}
+.login-cal-dow-row span {
+  text-align: center;
+  font-size: .68rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  padding: .15rem 0;
+}
+
+/* Calendar grid — fixed 6-row month view */
+.login-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+.login-cal-cell {
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  position: relative;
+  cursor: default;
+  padding: 4px 5px;
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  transition: transform .15s, box-shadow .15s;
+}
+.login-cal-cell:hover { transform: scale(1.06); z-index: 2; box-shadow: 0 4px 12px rgba(0,0,0,.25); }
+
+/* date number inside cell */
+.lc-date-num {
+  font-size: .72rem;
+  font-weight: 600;
+  line-height: 1;
+  color: rgba(255,255,255,0.9);
+}
+/* status icon at bottom-right */
+.lc-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.55);
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+}
+
+/* State colors */
+.login-cal-cell.lc-logged-in {
+  background: #0097a7;
+  border-color: #00bcd4;
+}
+.login-cal-cell.lc-logged-in .lc-date-num { color: #fff; }
+.login-cal-cell.lc-logged-in .lc-status-dot { background: #b2ebf2; }
+
+.login-cal-cell.lc-missed {
+  background: #b71c1c;
+  border-color: #ef5350;
+}
+.login-cal-cell.lc-missed .lc-date-num { color: #ffcdd2; }
+
+.login-cal-cell.lc-before {
+  background: var(--bg-card);
+  border-color: var(--border-color);
+  opacity: .5;
+}
+.login-cal-cell.lc-before .lc-date-num { color: var(--text-muted); }
+
+.login-cal-cell.lc-future {
+  background: var(--bg-card);
+  border-color: var(--border-color);
+}
+.login-cal-cell.lc-future .lc-date-num { color: var(--text-muted); }
+
+/* today highlight ring */
+.login-cal-cell.lc-today {
+  outline: 2px solid #ffc107;
+  outline-offset: -2px;
+}
+
+/* empty spacers (outside month) */
+.login-cal-cell.lc-empty {
+  background: transparent;
+  border-color: transparent;
+  pointer-events: none;
+}
+
+/* Tooltip */
+.login-cal-cell .lc-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-card-solid);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: .3rem .65rem;
+  font-size: .72rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  box-shadow: var(--shadow);
+  z-index: 100;
+  pointer-events: none;
+}
+.login-cal-cell:hover .lc-tooltip { display: block; }
+
+/* ── Overview stacked bar ────────────────────────────────────────────────── */
+.overview-num {
+  font-size: 2rem;
+  font-weight: 700;
+}
+.overview-label {
+  font-size: .75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.stacked-bar-wrap {
+  height: 14px;
+  background: var(--progress-bg);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.stacked-bar {
+  height: 100%;
+  display: flex;
+  border-radius: 99px;
+  overflow: hidden;
+}
+.stacked-seg {
+  height: 100%;
+  transition: width .6s ease;
+}

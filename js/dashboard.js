@@ -36,6 +36,7 @@ $(function () {
       _treeState = await API.getTreeState();
       renderTree();
       updateTopBar();
+      renderSidebar();
     } catch (err) {
       console.error('loadTreeState failed', err);
     } finally {
@@ -60,6 +61,69 @@ $(function () {
     });
 
   }
+
+  // ── Sidebar ──────────────────────────────────────────────────────────────
+  function renderSidebar() {
+    if (!_treeState) return;
+    const categories = (_treeState.categories || []).filter(c => (c.branches || []).length > 0);
+    const acc = $('#sidebarAccordion').empty();
+    const stats = _treeState.stats || {};
+
+    // Stem strength bar
+    if (stats.stem_strength !== undefined) {
+      const pct = Math.round((stats.stem_strength || 0) * 100);
+      $('#stemStrengthPct').text(pct + '%');
+      $('#stemStrengthBar').css('width', pct + '%');
+      $('#stemStrengthWrap').removeClass('d-none');
+    }
+
+    if (categories.length === 0) {
+      acc.html('<p class="text-center py-3" style="color:var(--text-muted);font-size:.83rem;">No branches yet.</p>');
+      return;
+    }
+
+    categories.forEach(function (cat, ci) {
+      const branches = cat.branches || [];
+      const branchesHtml = branches.map(function (b) {
+        const pct = b.total_tasks ? Math.round((b.completed_tasks / b.total_tasks) * 100) : 0;
+        return `<div class="branch-card-sidebar" style="border-color:${cat.color}" data-branch-id="${b.id}">
+          <div class="branch-name">${b.name}</div>
+          <div class="branch-meta">
+            <span>${b.completed_tasks}/${b.total_tasks} tasks</span>
+            <span>🔥 ${b.streak}</span>
+          </div>
+          <div class="branch-progress">
+            <div class="branch-progress-bar" style="width:${pct}%;background:${cat.color}"></div>
+          </div>
+        </div>`;
+      }).join('');
+
+      const isFirst = ci === 0;
+      acc.append(`
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button${isFirst ? '' : ' collapsed'}" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#catPanel${ci}"
+                    aria-expanded="${isFirst}">
+              <span style="margin-right:.4rem">${cat.icon}</span>${cat.name}
+            </button>
+          </h2>
+          <div id="catPanel${ci}" class="accordion-collapse collapse${isFirst ? ' show' : ''}">
+            <div class="accordion-body">${branchesHtml}</div>
+          </div>
+        </div>`);
+    });
+  }
+
+  // Sidebar branch click → open branch panel
+  $('#sidebarAccordion').on('click', '.branch-card-sidebar', function () {
+    openBranchPanel(parseInt($(this).data('branch-id')));
+    // auto-close sidebar on mobile
+    if (window.innerWidth < 992) {
+      document.getElementById('appSidebar').classList.remove('open');
+      document.getElementById('sidebarOverlay').classList.add('d-none');
+    }
+  });
 
   function updateTopBar() {
     if (!_treeState) return;
@@ -152,6 +216,7 @@ $(function () {
     const html = `
       <div class="mb-3">
         <h5 class="mb-1">${branch.name}</h5>
+        ${branch.description ? `<p class="text-muted small mb-2">${branch.description}</p>` : ''}
         <span class="badge bg-${healthBadge}">Health ${healthPct}%</span>
         <span class="badge bg-info ms-1">🔥 Streak ${branch.streak}</span>
         <span class="badge bg-secondary ms-1">Best ${branch.best_streak}</span>
@@ -176,7 +241,7 @@ $(function () {
   }
 
   // ── Task Panel ─────────────────────────────────────────────────────────────
-  function openTaskPanel(taskId) {
+  function openTaskPanel(taskId, branchId) {
     const task = _findTask(taskId);
     if (!task) return;
 
@@ -205,7 +270,12 @@ $(function () {
       actionHtml = '<p class="text-muted small mt-3">No actions available for this task.</p>';
     }
 
+    const backBtn = branchId
+      ? `<button class="btn btn-sm btn-outline-secondary mb-3 back-to-branch" data-branch-id="${branchId}">← Back to Branch</button>`
+      : '';
+
     const html = `
+      ${backBtn}
       <div class="mb-3">
         <h5>${task.title}</h5>
         <span class="badge bg-${statusBadge[task.status] || 'secondary'}">${task.status}</span>

@@ -2,7 +2,8 @@
  * api.js — All API calls, token management, base request helper
  * BASE_URL points to the Django backend.
  */
-const BASE_URL = 'https://backbenchershub.com/habbit_tracker/api/v1';
+// const BASE_URL = 'https://backbenchershub.com/habbit_tracker/api/v1';
+const BASE_URL = 'http://127.0.0.1:8000/habbit_tracker/api/v1';
 
 // ─── Token helpers ───────────────────────────────────────────────────────────
 const Auth = {
@@ -156,5 +157,10 @@ const API = {
   // ─── Leaderboard ─────────────────────────────────────────────────────────
   getLeaderboard(sort = 'score', limit = 50) {
     return apiFetch(`/leaderboard/?sort=${encodeURIComponent(sort)}&limit=${limit}`);
+  },
+
+  // ─── Analytics ────────────────────────────────────────────────────────────
+  getDashboardAnalytics() {
+    return apiFetch('/analytics/dashboard/');
   },
 };

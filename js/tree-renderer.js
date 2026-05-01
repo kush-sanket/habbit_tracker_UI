@@ -46,8 +46,12 @@ const TreeRenderer = (() => {
       });
       defs.appendChild(g);
     }
-    // Sky (top-to-bottom)
-    grad('htSky', false, [['0%','#060f1e'],['55%','#0b1c36'],['100%','#102340']], { x1:'0%',y1:'0%',x2:'0%',y2:'100%' });
+    // Sky (top-to-bottom) — early morning sunrise for day, deep space for night
+    const isDay = document.body.classList.contains('day-theme');
+    const skyStops = isDay
+      ? [['0%','#2e4a8b'],['28%','#f4845f'],['58%','#fbc66f'],['82%','#fde299'],['100%','#fff0c0']]  // sunrise
+      : [['0%','#060f1e'],['55%','#0b1c36'],['100%','#102340']];   // night: deep space
+    grad('htSky', false, skyStops, { x1:'0%',y1:'0%',x2:'0%',y2:'100%' });
     // Trunk (left-to-right, simulates cylinder)
     grad('htTrunk', false, [['0%','#1a0800'],['22%','#5c2508'],['52%','#9e4a18'],['78%','#6b3010'],['100%','#1e0900']], { x1:'0%',y1:'0%',x2:'100%',y2:'0%' });
     // Ground surface
@@ -60,13 +64,83 @@ const TreeRenderer = (() => {
     // Sky background
     svgEl.appendChild(el('rect', { x:0, y:0, width:W, height:H, fill:'url(#htSky)' }));
 
-    // Stars (deterministic)
-    for (let i = 0; i < 35; i++) {
-      svgEl.appendChild(el('circle', {
-        cx: rng(i*13)*W, cy: rng(i*17)*(groundY*0.75),
-        r: 0.6 + rng(i*23)*1.1,
-        fill: 'white', opacity: 0.35 + rng(i*7)*0.45,
-      }));
+    const isDay = document.body.classList.contains('day-theme');
+    if (isDay) {
+      // ── Horizon sunrise glow radiating from lower-right ─────────────────
+      svgEl.appendChild(el('ellipse', { cx:W*0.84, cy:groundY, rx:W*0.78, ry:groundY*0.58, fill:'#ff8c00', opacity:0.13 }));
+
+      // ── Rising sun (low near horizon) ────────────────────────────────────
+      const sunX = W * 0.84, sunY = groundY * 0.82;
+      svgEl.appendChild(el('circle', { cx:sunX, cy:sunY, r:78, fill:'#ffcc00', opacity:0.07 }));
+      svgEl.appendChild(el('circle', { cx:sunX, cy:sunY, r:55, fill:'#ffaa00', opacity:0.14 }));
+      svgEl.appendChild(el('circle', { cx:sunX, cy:sunY, r:34, fill:'#FFD600', opacity:0.93 }));
+      svgEl.appendChild(el('circle', { cx:sunX-9, cy:sunY-9, r:14, fill:'#fff5a0', opacity:0.55 }));
+
+      // ── Big fluffy clouds (warm morning tint, animated drift) ────────────
+      [
+        { cx:0.14, cy:0.13, s:1.8, dur:'32s', del:'-4s'  },
+        { cx:0.54, cy:0.08, s:2.2, dur:'44s', del:'-18s' },
+        { cx:0.34, cy:0.26, s:1.5, dur:'26s', del:'-10s' },
+        { cx:0.70, cy:0.19, s:1.3, dur:'36s', del:'-22s' },
+      ].forEach(({ cx, cy, s, dur, del }) => {
+        const gx = W * cx, gy = groundY * cy;
+        const cg = el('g');
+        cg.appendChild(el('ellipse', { cx:gx,      cy:gy,      rx:52*s, ry:22*s, fill:'#fff8f0', opacity:0.90 }));
+        cg.appendChild(el('ellipse', { cx:gx+36*s, cy:gy+8*s,  rx:42*s, ry:21*s, fill:'#fff5ea', opacity:0.84 }));
+        cg.appendChild(el('ellipse', { cx:gx-30*s, cy:gy+9*s,  rx:38*s, ry:20*s, fill:'#fff5ea', opacity:0.82 }));
+        cg.appendChild(el('ellipse', { cx:gx+10*s, cy:gy-14*s, rx:34*s, ry:21*s, fill:'#ffffff', opacity:0.80 }));
+        cg.appendChild(el('ellipse', { cx:gx-12*s, cy:gy-10*s, rx:26*s, ry:17*s, fill:'#ffffff', opacity:0.74 }));
+        // Warm orange underbelly (morning light catching cloud base)
+        cg.appendChild(el('ellipse', { cx:gx, cy:gy+15*s, rx:52*s, ry:14*s, fill:'#ffbb66', opacity:0.22 }));
+        const anim = el('animateTransform');
+        anim.setAttribute('attributeName', 'transform');
+        anim.setAttribute('type', 'translate');
+        anim.setAttribute('values', `0 0; ${W*0.07} -4; 0 0; ${-W*0.04} 3; 0 0`);
+        anim.setAttribute('keyTimes', '0; 0.3; 0.5; 0.8; 1');
+        anim.setAttribute('dur', dur);
+        anim.setAttribute('begin', del);
+        anim.setAttribute('repeatCount', 'indefinite');
+        anim.setAttribute('calcMode', 'spline');
+        anim.setAttribute('keySplines', '0.4 0 0.6 1; 0.4 0 0.6 1; 0.4 0 0.6 1; 0.4 0 0.6 1');
+        cg.appendChild(anim);
+        svgEl.appendChild(cg);
+      });
+
+      // ── Birds gliding across the morning sky ─────────────────────────────
+      [
+        { sx:W*0.92, sy:groundY*0.15, s:1.1, dur:'18s', del:'-2s'  },
+        { sx:W*0.80, sy:groundY*0.10, s:0.9, dur:'25s', del:'-12s' },
+        { sx:W*0.88, sy:groundY*0.22, s:0.75,dur:'20s', del:'-7s'  },
+        { sx:W*0.96, sy:groundY*0.17, s:1.0, dur:'22s', del:'-15s' },
+      ].forEach(({ sx, sy, s, dur, del }) => {
+        const bg = el('g', { transform:`translate(${sx},${sy})` });
+        bg.appendChild(el('path', {
+          d: `M 0,0 C ${-7*s},${-5*s} ${-15*s},${-6*s} ${-20*s},${-2*s} M 0,0 C ${7*s},${-5*s} ${15*s},${-6*s} ${20*s},${-2*s}`,
+          stroke:'#1a1a2e', 'stroke-width':1.8*s, fill:'none', 'stroke-linecap':'round',
+        }));
+        const anim = el('animateTransform');
+        anim.setAttribute('attributeName', 'transform');
+        anim.setAttribute('type', 'translate');
+        anim.setAttribute('additive', 'sum');
+        anim.setAttribute('values', `0 0; ${-W*0.4} -12; ${-W*0.8} 0; ${-W*1.2} -8; ${-W*1.6} 5`);
+        anim.setAttribute('keyTimes', '0; 0.25; 0.5; 0.75; 1');
+        anim.setAttribute('dur', dur);
+        anim.setAttribute('begin', del);
+        anim.setAttribute('repeatCount', 'indefinite');
+        anim.setAttribute('calcMode', 'spline');
+        anim.setAttribute('keySplines', '0.4 0 0.6 1; 0.4 0 0.6 1; 0.4 0 0.6 1; 0.4 0 0.6 1');
+        bg.appendChild(anim);
+        svgEl.appendChild(bg);
+      });
+    } else {
+      // Stars (deterministic, night mode)
+      for (let i = 0; i < 35; i++) {
+        svgEl.appendChild(el('circle', {
+          cx: rng(i*13)*W, cy: rng(i*17)*(groundY*0.75),
+          r: 0.6 + rng(i*23)*1.1,
+          fill: 'white', opacity: 0.35 + rng(i*7)*0.45,
+        }));
+      }
     }
 
     // Earth fill
@@ -335,11 +409,12 @@ const TreeRenderer = (() => {
     });
 
     if (overflow > 0) {
+      const _isDay = document.body.classList.contains('day-theme');
       parentG.appendChild(svgText(`+${overflow}`, {
         x: tipX + Math.cos(branchAngleRad) * 18,
         y: tipY + Math.sin(branchAngleRad) * 18,
         'text-anchor':'middle',
-        fill:'#a8d890', 'font-size':10, style:'pointer-events:none',
+        fill: _isDay ? '#1a5a10' : '#a8d890', 'font-size':10, style:'pointer-events:none',
       }));
     }
   }
@@ -357,6 +432,7 @@ const TreeRenderer = (() => {
     const stats      = treeState.stats      || {};
     const categories = treeState.categories || [];
     const groundY    = H - 70;
+    const isDay      = document.body.classList.contains('day-theme');
 
     // Collect branches FIRST — count drives stem proportions
     const allBranches = [];
@@ -382,6 +458,18 @@ const TreeRenderer = (() => {
     // Viewport group
     const vp = el('g', { id: 'ht-viewport' });
     svgEl.appendChild(vp);
+
+    // Gentle breeze — whole tree sways from trunk base
+    const sway = el('animateTransform');
+    sway.setAttribute('attributeName', 'transform');
+    sway.setAttribute('type', 'rotate');
+    sway.setAttribute('values', `0 ${W/2} ${groundY}; 1.5 ${W/2} ${groundY}; 0 ${W/2} ${groundY}; -1.5 ${W/2} ${groundY}; 0 ${W/2} ${groundY}`);
+    sway.setAttribute('keyTimes', '0; 0.25; 0.5; 0.75; 1');
+    sway.setAttribute('dur', '7s');
+    sway.setAttribute('repeatCount', 'indefinite');
+    sway.setAttribute('calcMode', 'spline');
+    sway.setAttribute('keySplines', '0.45 0 0.55 1; 0.45 0 0.55 1; 0.45 0 0.55 1; 0.45 0 0.55 1');
+    vp.appendChild(sway);
 
     _drawTrunk(vp, W, stemTopY, groundY, stemW);
 
@@ -458,7 +546,7 @@ const TreeRenderer = (() => {
                    : Math.cos(angleRad) >= 0             ? 'start' : 'end';
       g.appendChild(svgText(branch.name || '', {
         x: nameX, y: nameY,
-        'text-anchor': anchor, fill:'#dde8cc', 'font-size':11, 'font-weight':'600',
+        'text-anchor': anchor, fill: isDay ? '#1a3a10' : '#dde8cc', 'font-size':11, 'font-weight':'600',
         style:'pointer-events:none',
       }));
 
